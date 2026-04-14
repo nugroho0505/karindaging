@@ -165,7 +165,7 @@ th, td{
         <tr>
  <td colspan="2"><b>Total</b></td>
     <td><b id="totalQty"></b></td>
-    <td><b id="totalBox"></b></td>
+    <td><b id="totalBox"></b> Box</td>
         </tr>
     </table>
 
@@ -198,7 +198,7 @@ th, td{
 <script>
 const p = new URLSearchParams(window.location.search);
 
-// HEADER
+
 function setHeader(){
     document.getElementById("customer").innerText = p.get("customer") || "-";
     document.getElementById("alamat").innerText   = p.get("alamat") || "-";
@@ -209,7 +209,6 @@ function setHeader(){
     document.getElementById("po").innerText       = p.get("po") || "-";
 }
 
-// TABLE
 function renderTable(){
 
     let detail = p.get("detail") || "";
@@ -238,7 +237,7 @@ function renderTable(){
 
     document.getElementById("tbody").innerHTML = html;
 
-    // TOTAL dari AppSheet
+    
     document.getElementById("totalQty").innerText =
         Number(p.get("totalQty") || 0).toLocaleString("id-ID");
 
