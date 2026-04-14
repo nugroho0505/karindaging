@@ -224,14 +224,14 @@ function renderTable(){
         let kode = col[0] || "";
         let nama = col[1] || "";
         let qty  = Number(col[2]) || 0;
-        let box  = Number(col[3]) || 0;
+        let box  = col[3] || 0;
 
         html += `
         <tr>
             <td>${kode}</td>
             <td>${nama}</td>
             <td>${qty.toLocaleString("id-ID")}</td>
-            <td>${box.toLocaleString("id-ID")}</td>
+            <td>${box}</td>
         </tr>
         `;
     });
