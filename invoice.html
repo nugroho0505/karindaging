@@ -157,7 +157,7 @@ th, td{ padding:4px; }
            <div>Tanggal<br><b id="tanggal"></b></div>
             <div>Nomor<br><b id="no"></b></div>
 
-            <div>TOP<br><b>CASH</b></div>
+            <div>TOP<br><b id="TOP"></b></div>
             <div>Jatuh Tempo<br><b id="jatuhTempo"></b></div>
 
             <div>Ekspedisi<br><b>-</b></div>
@@ -277,9 +277,7 @@ function renderTable() {
 
     document.getElementById("tbody").innerHTML = tbody;
 
-    // langsung pakai dari AppSheet
-    document.getElementById("total").innerText =
-        grandTotal.toLocaleString("id-ID");
+
 
     document.getElementById("terbilang").innerText =
         "Terbilang : " + terbilang(Math.round(grandTotal)) + " rupiah";
@@ -301,10 +299,8 @@ function setHeader(){
     document.getElementById("no").innerText = p.get("no") || "-";
     document.getElementById("top").innerText = p.get("top") || "-";
     document.getElementById("jatuhTempo").innerText = p.get("jatuhTempo") || "-";
-    document.getElementById("ekspedisi").innerText = p.get("ekspedisi") || "-";
     document.getElementById("tglKirim").innerText = p.get("tglKirim") || "-";
     document.getElementById("po").innerText = p.get("po") || "-";
-    document.getElementById("currency").innerText = p.get("currency") || "-";
     
 }
 
