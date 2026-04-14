@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Surat Jalan 2 Ply</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    margin:0;
+}
+
+/* PAGE 2 PLY */
+.page{
+    width:21cm;
+    min-height:33cm;
+    margin:auto;
+    border:1px solid #000;
+    padding:10mm;
+    box-sizing:border-box;
+}
+
+/* HEADER */
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+/* LOGO */
+.logo-wrap{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.logo{
+    width:60px;
+    height:60px;
+}
+
+/* BOX */
+.box{
+    border:1px solid #000;
+    padding:8px;
+}
+
+/* TABLE */
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+table, th, td{
+    border:1px solid #000;
+}
+
+th, td{
+    padding:5px;
+    font-size:13px;
+}
+
+/* FOOTER */
+.footer{
+    margin-top:40px;
+    display:flex;
+    justify-content:space-between;
+    text-align:center;
+}
+
+/* LAYOUT KEPADA + INFO */
+.row{
+    display:flex;
+    gap:10px;
+    margin-top:10px;
+}
+
+.left-box{
+    width:50%;
+    border:1px solid #000;
+    padding:8px;
+}
+
+.right-box{
+    width:50%;
+}
+
+@page{
+    size:21.5cm 33cm;
+    margin:5mm;
+}
+
+@media print{
+    body{ margin:0; }
+    .page{ border:none; page-break-after:always; }
+    .print-btn{ display:none; }
+}
+</style>
+</head>
+
+<body>
+
+<button class="print-btn" onclick="window.print()">🖨️ PRINT</button>
+
+<div class="page">
+
+    <!-- HEADER -->
+    <div class="header">
+
+        <div class="logo-wrap">
+            <img class="logo" src="logokarin.png">
+            <div>
+                <div style="font-size:22px;font-weight:bold;">
+                    KARIN DAGING
+                </div>
+                <div style="font-size:12px;">
+                  Jl. Patriot RT.03 RW.01 Kepuhkembeng Peterongan <br>
+            Jombang <br>
+            Telp : 0813 3639 8800, 0812 33759743<br>
+            Email : Karin@gmail.com<br>
+                </div>
+            </div>
+        </div>
+
+        <h2>SURAT JALAN</h2>
+
+    </div>
+
+    <!-- KEPADA + INFO SEJAJAR -->
+    <div class="row">
+
+        <!-- KEPADA -->
+        <div class="left-box">
+            Kepada:<br>
+         <b id="customer"></b><br>
+<span id="alamat"></span>
+        </div>
+
+        <!-- INFO -->
+        <div class="right-box">
+            <table>
+                <tr>
+<td><b>Tanggal</b><br><span id="tanggal"></span></td>
+<td><b>Nomor</b><br><span id="no"></span></td>
+
+                </tr>
+                <tr>
+<td><b>Pengirim</b><br><span id="pengirim"></span></td>
+<td><b>PO No</b><br><span id="po"></span></td>
+                </tr>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- TABLE BARANG -->
+    <table style="margin-top:10px;">
+        <tr>
+            <th>Kode Barang</th>
+            <th>Nama Barang</th>
+            <th>QTY</th>
+            <th>BOX</th>
+        </tr>
+<tbody id="tbody"></tbody>
+        <tr>
+ <td colspan="2"><b>Total</b></td>
+    <td><b id="totalQty"></b></td>
+    <td><b id="totalBox"></b></td>
+        </tr>
+    </table>
+
+    <!-- KETERANGAN -->
+    <div class="box" style="margin-top:10px; height:70px;">
+        Keterangan:
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <div>
+          <p>Gudang<br>
+          </p>
+          <p><br>
+          __________</p>
+        </div>
+        <div>
+          <p>Pengirim<br><br>___</p>
+          <p>_______</p>
+        </div>
+        <div>
+          <p>Penerima<br>
+          </p>
+          <p><br>
+          __________</p>
+        </div>
+    </div>
+
+</div>
+<script>
+const p = new URLSearchParams(window.location.search);
+
+// HEADER
+function setHeader(){
+    document.getElementById("customer").innerText = p.get("customer") || "-";
+    document.getElementById("alamat").innerText   = p.get("alamat") || "-";
+
+    document.getElementById("tanggal").innerText  = p.get("tanggal") || "-";
+    document.getElementById("no").innerText       = p.get("no") || "-";
+    document.getElementById("pengirim").innerText = p.get("pengirim") || "-";
+    document.getElementById("po").innerText       = p.get("po") || "-";
+}
+
+// TABLE
+function renderTable(){
+
+    let detail = p.get("detail") || "";
+    let items = detail.split(",").map(x => x.trim());
+
+    let html = "";
+
+    items.forEach(row => {
+
+        let col = row.split("|");
+
+        let kode = col[0] || "";
+        let nama = col[1] || "";
+        let qty  = Number(col[2]) || 0;
+        let box  = Number(col[3]) || 0;
+
+        html += `
+        <tr>
+            <td>${kode}</td>
+            <td>${nama}</td>
+            <td>${qty.toLocaleString("id-ID")}</td>
+            <td>${box.toLocaleString("id-ID")}</td>
+        </tr>
+        `;
+    });
+
+    document.getElementById("tbody").innerHTML = html;
+
+    // TOTAL dari AppSheet
+    document.getElementById("totalQty").innerText =
+        Number(p.get("totalQty") || 0).toLocaleString("id-ID");
+
+    document.getElementById("totalBox").innerText =
+        Number(p.get("totalBox") || 0).toLocaleString("id-ID");
+}
+
+setHeader();
+renderTable();
+</script>
+
+</body>
+</html>
