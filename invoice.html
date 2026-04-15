@@ -243,7 +243,7 @@ const p = new URLSearchParams(window.location.search);
 
 function renderTable() {
 
-    let detail = p.get("detail") || "";
+let detail = decodeURIComponent(p.get("detail") || "");
     let grandTotal = Number(p.get("grand")) || 0;
 
     let items = detail.split(",").map(x => x.trim());
@@ -297,7 +297,7 @@ function setHeader(){
 
     document.getElementById("tanggal").innerText = p.get("tanggal") || "-";
     document.getElementById("no").innerText = p.get("no") || "-";
-    document.getElementById("top").innerText = p.get("top") || "-";
+    document.getElementById("TOP").innerText = p.get("TOP") || "-";
     document.getElementById("jatuhTempo").innerText = p.get("jatuhTempo") || "-";
     document.getElementById("tglKirim").innerText = p.get("tglKirim") || "-";
     document.getElementById("po").innerText = p.get("po") || "-";
