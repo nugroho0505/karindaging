@@ -305,6 +305,28 @@ function setHeader(){
 }
 
 setHeader();
+    const p = new URLSearchParams(window.location.search);
+
+let raw = p.get("detail");
+let decoded = decodeURIComponent(raw || "");
+
+document.body.innerHTML += `
+<pre style="background:#000;color:#0f0;padding:10px">
+RAW:
+${raw}
+
+DECODED:
+${decoded}
+</pre>
+`;
+    let items = decoded.split(",").map(x => x.trim()).filter(x => x);
+
+document.body.innerHTML += `
+<pre style="background:#111;color:#0ff;padding:10px">
+ITEMS:
+${JSON.stringify(items, null, 2)}
+</pre>
+`;
 
 </script>
 
