@@ -239,18 +239,19 @@ document.getElementById("terbilang").innerText =
 const p = new URLSearchParams(window.location.search);
 
 function renderTable() {
-
+console.log("PARAM DETAIL:", p.get("detail"));
     let detail = decodeURIComponent(p.get("detail") || "");
+    console.log("SETELAH DECODE:", detail);
     let grandTotal = Number(p.get("grand")) || 0;
 
     let items = detail.split(",").map(x => x.trim()).filter(x => x);
-
+console.log("ITEMS:", items);
     let tbody = "";
 
     items.forEach(row => {
-
+console.log("ROW:", row);
         let col = row.split("|");
-
+console.log("COL:", col);
         let kode    = col[0] || "";
         let nama    = col[1] || "";
         let packing = col[2] || "";
