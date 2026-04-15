@@ -243,10 +243,10 @@ const p = new URLSearchParams(window.location.search);
 
 function renderTable() {
 
-let detail = decodeURIComponent(p.get("detail") || "");
+    let detail = decodeURIComponent(p.get("detail") || "");
     let grandTotal = Number(p.get("grand")) || 0;
 
-    let items = detail.split(",").map(x => x.trim());
+    let items = detail.split(",").map(x => x.trim()).filter(x => x);
 
     let tbody = "";
 
@@ -277,18 +277,15 @@ let detail = decodeURIComponent(p.get("detail") || "");
 
     document.getElementById("tbody").innerHTML = tbody;
 
+    document.getElementById("grandTotal").innerText =
+        grandTotal.toLocaleString("id-ID");
 
+    document.getElementById("subtotal").innerText =
+        grandTotal.toLocaleString("id-ID");
 
     document.getElementById("terbilang").innerText =
         "Terbilang : " + terbilang(Math.round(grandTotal)) + " rupiah";
-        document.getElementById("grandTotal").innerText =
-    grandTotal.toLocaleString("id-ID");
-
-document.getElementById("subtotal").innerText =
-    grandTotal.toLocaleString("id-ID");
 }
-
-renderTable();
 
 function setHeader(){
 
