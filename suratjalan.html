@@ -214,8 +214,9 @@ function renderTable(){
     let detail = p.get("detail") || "";
     let items = detail.split(",").map(x => x.trim());
 
-    let html = "";
+    let grouped = {};
 
+    // 🔹 GROUP DATA
     items.forEach(row => {
 
         let col = row.split("|");
@@ -223,28 +224,69 @@ function renderTable(){
         let kode = col[0] || "";
         let nama = col[1] || "";
         let qty  = Number(col[2]) || 0;
-        let box  = col[3] || 0;
+        let box  = Number(col[3]) || 0;
 
+        if(!grouped[kode]){
+            grouped[kode] = {
+                nama: nama,
+                totalQty: 0,
+                totalBox: 0,
+                detail: []
+            };
+        }
+
+        grouped[kode].totalQty += qty;
+        grouped[kode].totalBox += box;
+
+        grouped[kode].detail.push({
+            nama: nama,
+            qty: qty,
+            box: box
+        });
+    });
+
+    // 🔹 RENDER
+    let html = "";
+
+    Object.keys(grouped).forEach(kode => {
+
+        let g = grouped[kode];
+
+        // HEADER PRODUK
         html += `
-        <tr>
+        <tr style="font-weight:bold; background:#f2f2f2;">
             <td>${kode}</td>
-            <td>${nama}</td>
-            <td>${qty.toLocaleString("id-ID")}</td>
-            <td>${box}</td>
+            <td>${g.nama}</td>
+            <td>${g.totalQty.toLocaleString("id-ID")}</td>
+            <td>${g.totalBox}</td>
         </tr>
         `;
+
+        // SUB DETAIL
+        g.detail.forEach(d => {
+            html += `
+            <tr>
+                <td></td>
+                <td style="padding-left:20px;">
+                    - ${d.nama} @${d.qty.toLocaleString("id-ID")} Kg
+                </td>
+                <td></td>
+                <td>${d.box}</td>
+            </tr>
+            `;
+        });
+
     });
 
     document.getElementById("tbody").innerHTML = html;
 
-    
+    // TOTAL BAWAH (tetap pakai dari parameter)
     document.getElementById("totalQty").innerText =
         Number(p.get("totalQty") || 0).toLocaleString("id-ID");
 
     document.getElementById("totalBox").innerText =
         Number(p.get("totalBox") || 0).toLocaleString("id-ID");
 }
-
 setHeader();
 renderTable();
 </script>
