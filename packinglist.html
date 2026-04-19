@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Packing List</title>
+
+<style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 20px; color: #000; }
+    .page { width: 21cm; min-height: 29.7cm; margin: auto; box-sizing: border-box; }
+    
+    .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #000; padding-bottom: 10px; }
+    .logo-wrap { display: flex; align-items: center; gap: 15px; }
+    .logo { width: 60px; height: 60px; }
+    
+    .info-section { display: flex; gap: 20px; margin-top: 15px; }
+    .kepada { width: 50%; border: 1px solid #000; padding: 10px; }
+    .meta-data { width: 50%; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    th, td { border: 1px solid #000; padding: 6px; font-size: 12px; }
+    th { background-color: #eee; }
+
+    .section-title { margin-top: 30px; font-weight: bold; text-decoration: underline; font-size: 16px; }
+    .footer { margin-top: 30px; display: flex; justify-content: space-between; text-align: center; }
+    
+    .group-header { background-color: #f9f9f9; font-weight: bold; }
+    .detail-row td { padding-left: 25px; font-style: italic; color: #333; border-top: 1px dashed #ccc; }
+
+    @media print {
+        .print-btn { display: none; }
+        body { padding: 0; }
+        .page { border: none; }
+        .page-break { page-break-before: always; }
+    }
+</style>
+</head>
+<body>
+
+<button class="print-btn" onclick="window.print()" style="padding: 10px 20px; cursor: pointer; margin-bottom: 20px;">🖨️ CETAK DOKUMEN</button>
+
+<div class="page">
+    <div class="header">
+        <div class="logo-wrap">
+            <img class="logo" src="logokarin.png" alt="Logo">
+            <div>
+                <div style="font-size: 20px; font-weight: bold;">KARIN DAGING</div>
+                <div style="font-size: 11px;">Jl. Patriot RT.03 RW.01 Kepuhkembeng, Jombang<br>WA: 0813 3639 8800 | Email: Karin@gmail.com</div>
+            </div>
+        </div>
+        <h2 style="margin: 0;">PACKING LIST</h2>
+    </div>
+
+    <div class="info-section">
+        <div class="kepada">
+            <small>Penerima:</small><br>
+            <b id="customer"></b><br>
+            <span id="alamat"></span>
+        </div>
+        <div class="meta-data">
+            <table>
+                <tr><td>Tgl</td><td id="tanggal"></td><td>No. SJ</td><td id="no"></td></tr>
+                <tr><td>Kurir</td><td id="pengirim"></td><td>PO</td><td id="po"></td></tr>
+            </table>
+        </div>
+    </div>
+
+    <div class="section-title">DAFTAR BARANG</div>
+    <table>
+        <thead>
+            <tr>
+                <th width="15%">Kode</th>
+                <th>Nama Produk</th>
+                <th width="15%">Total QTY</th>
+                <th width="10%">Box</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-sj"></tbody>
+        <tfoot>
+            <tr style="font-weight: bold;">
+                <td colspan="2" align="right">TOTAL KESELURUHAN</td>
+                <td id="totalQty"></td>
+                <td id="totalBox"></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="page-break"></div>
+    <div class="section-title">PACKING LIST (DETAIL PER BOX)</div>
+    <table>
+        <thead>
+            <tr>
+                <th>Detail Item & Rincian Berat</th>
+                <th width="15%">QTY (Kg)</th>
+                <th width="10%">Box</th>
+            </tr>
+        </thead>
+        <tbody id="tbody-pl"></tbody>
+    </table>
+
+    <div style="margin-top: 20px; border: 1px solid #000; padding: 10px; height: 50px;">
+        <small>Keterangan:</small>
+    </div>
+
+    <div class="footer">
+        <div><p>Gudang</p><br><br><p>( _________ )</p></div>
+        <div><p>Pengirim</p><br><br><p>( _________ )</p></div>
+        <div><p>Penerima</p><br><br><p>( _________ )</p></div>
+    </div>
+</div>
+
+<script>
+const p = new URLSearchParams(window.location.search);
+
+function init() {
+    // Header Data
+    document.getElementById("customer").innerText = p.get("customer") || "-";
+    document.getElementById("alamat").innerText   = p.get("alamat") || "-";
+    document.getElementById("tanggal").innerText  = p.get("tanggal") || "-";
+    document.getElementById("no").innerText       = p.get("no") || "-";
+    document.getElementById("pengirim").innerText = p.get("pengirim") || "-";
+    document.getElementById("po").innerText       = p.get("po") || "-";
+
+    const detail = p.get("detail") || "";
+    const items = detail.split(",").filter(x => x.trim() !== "");
+    
+    let grouped = {};
+    let rawListHtml = "";
+
+    // Proses Data
+    items.forEach(row => {
+        let col = row.split("|");
+        let kode = col[0] || "N/A";
+        let nama = col[1] || "Produk";
+        let qty  = parseFloat(col[2]) || 0;
+        let box  = parseInt(col[3]) || 0;
+
+        // Untuk Surat Jalan (Ringkasan)
+        rawListHtml += `<tr>
+            <td>${kode}</td>
+            <td>${nama}</td>
+            <td>${qty.toLocaleString("id-ID")} Kg</td>
+            <td>${box}</td>
+        </tr>`;
+
+        // Untuk Packing List (Grouping)
+        if (!grouped[kode]) {
+            grouped[kode] = { nama: nama, totalQty: 0, totalBox: 0, details: [] };
+        }
+        grouped[kode].totalQty += qty;
+        grouped[kode].totalBox += box;
+        grouped[kode].details.push({ qty, box });
+    });
+
+    // Render Surat Jalan
+    document.getElementById("tbody-sj").innerHTML = rawListHtml;
+
+    // Render Packing List (Grouping Logic)
+    let packingHtml = "";
+    Object.keys(grouped).forEach(key => {
+        let g = grouped[key];
+        // Header Group
+        packingHtml += `<tr class="group-header">
+            <td>${key} - ${g.nama}</td>
+            <td>${g.totalQty.toLocaleString("id-ID")} Kg</td>
+            <td>${g.totalBox}</td>
+        </tr>`;
+        
+        // Detail per item dalam group
+        g.details.forEach((d, index) => {
+            packingHtml += `<tr class="detail-row">
+                <td>&nbsp;&nbsp;&nbsp; Box ${index + 1}: ${g.nama}</td>
+                <td>${d.qty.toLocaleString("id-ID")} Kg</td>
+                <td>${d.box}</td>
+            </tr>`;
+        });
+    });
+    document.getElementById("tbody-pl").innerHTML = packingHtml;
+
+    // Totals
+    document.getElementById("totalQty").innerText = (p.get("totalQty") || "0") + " Kg";
+    document.getElementById("totalBox").innerText = (p.get("totalBox") || "0") + " Box";
+}
+
+init();
+</script>
+
+</body>
+</html>
