@@ -104,191 +104,127 @@ th, td{
 
 <div class="page">
 
-    <!-- HEADER -->
     <div class="header">
-
         <div class="logo-wrap">
             <img class="logo" src="logokarin.png">
             <div>
-                <div style="font-size:22px;font-weight:bold;">
-                    KARIN DAGING
-                </div>
+                <div style="font-size:22px;font-weight:bold;">KARIN DAGING</div>
                 <div style="font-size:12px;">
                   Jl. Patriot RT.03 RW.01 Kepuhkembeng Peterongan <br>
-            Jombang <br>
-            Telp : 0813 3639 8800, 0812 33759743<br>
-            Email : Karin@gmail.com<br>
+                  Jombang <br>
+                  Telp : 0813 3639 8800, 0812 33759743<br>
+                  Email : Karin@gmail.com<br>
                 </div>
             </div>
         </div>
-
         <h2>SURAT JALAN</h2>
-
     </div>
 
-    <!-- KEPADA + INFO SEJAJAR -->
     <div class="row">
-
-        <!-- KEPADA -->
         <div class="left-box">
             Kepada:<br>
-         <b id="customer"></b><br>
-<span id="alamat"></span>
+            <b id="customer"></b><br>
+            <span id="alamat"></span>
         </div>
 
-        <!-- INFO -->
         <div class="right-box">
             <table>
                 <tr>
-<td><b>Tanggal</b><br><span id="tanggal"></span></td>
-<td><b>Nomor</b><br><span id="no"></span></td>
-
+                    <td><b>Tanggal</b><br><span id="tanggal"></span></td>
+                    <td><b>Nomor</b><br><span id="no"></span></td>
                 </tr>
                 <tr>
-<td><b>Pengirim</b><br><span id="pengirim"></span></td>
-<td><b>PO No</b><br><span id="po"></span></td>
+                    <td><b>Pengirim</b><br><span id="pengirim"></span></td>
+                    <td><b>PO No</b><br><span id="po"></span></td>
                 </tr>
             </table>
         </div>
-
     </div>
 
-    <!-- TABLE BARANG -->
     <table style="margin-top:10px;">
-        <tr>
-            <th>Kode Barang</th>
-            <th>Nama Barang</th>
-            <th>QTY</th>
-            <th>BOX</th>
-        </tr>
-<tbody id="tbody"></tbody>
-        <tr>
- <td colspan="2"><b>Total</b></td>
-    <td><b id="totalQty"></b></td>
-    <td><b id="totalBox"></b> Box</td>
-        </tr>
+        <thead>
+            <tr>
+                <th>Kode Barang</th>
+                <th>Nama Barang</th>
+                <th>QTY (Kg)</th>
+                <th>BOX</th>
+            </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+        <tfoot>
+            <tr style="font-weight:bold;">
+                <td colspan="2" style="text-align:right;">Total</td>
+                <td id="totalQty"></td>
+                <td><span id="totalBox"></span> Box</td>
+            </tr>
+        </tfoot>
     </table>
 
-    <!-- KETERANGAN -->
     <div class="box" style="margin-top:10px; height:70px;">
         Keterangan:
     </div>
 
-    <!-- FOOTER -->
     <div class="footer">
         <div>
-          <p>Gudang<br>
-          </p>
-          <p><br>
-          __________</p>
+          <p>Gudang</p>
+          <p><br><br>__________</p>
         </div>
         <div>
-          <p>Pengirim<br><br>___</p>
-          <p>_______</p>
+          <p>Pengirim</p>
+          <p><br><br>__________</p>
         </div>
         <div>
-          <p>Penerima<br>
-          </p>
-          <p><br>
-          __________</p>
+          <p>Penerima</p>
+          <p><br><br>__________</p>
         </div>
     </div>
 
 </div>
+
 <script>
 const p = new URLSearchParams(window.location.search);
 
-
-function setHeader(){
+function renderData(){
+    // Set Header Info
     document.getElementById("customer").innerText = p.get("customer") || "-";
     document.getElementById("alamat").innerText   = p.get("alamat") || "-";
-
     document.getElementById("tanggal").innerText  = p.get("tanggal") || "-";
     document.getElementById("no").innerText       = p.get("no") || "-";
     document.getElementById("pengirim").innerText = p.get("pengirim") || "-";
     document.getElementById("po").innerText       = p.get("po") || "-";
-}
 
-function renderTable(){
-
+    // Render Table Body (Tanpa Rincian/Grouping)
     let detail = p.get("detail") || "";
-    let items = detail.split(",").map(x => x.trim());
-
-    let grouped = {};
-
-    // 🔹 GROUP DATA
-    items.forEach(row => {
-
-        let col = row.split("|");
-
-        let kode = col[0] || "";
-        let nama = col[1] || "";
-        let qty  = Number(col[2]) || 0;
-        let box  = Number(col[3]) || 0;
-
-        if(!grouped[kode]){
-            grouped[kode] = {
-                nama: nama,
-                totalQty: 0,
-                totalBox: 0,
-                detail: []
-            };
-        }
-
-        grouped[kode].totalQty += qty;
-        grouped[kode].totalBox += box;
-
-        grouped[kode].detail.push({
-            nama: nama,
-            qty: qty,
-            box: box
-        });
-    });
-
-    // 🔹 RENDER
+    let items = detail.split(",").filter(x => x.trim() !== "");
     let html = "";
 
-    Object.keys(grouped).forEach(kode => {
+    items.forEach(row => {
+        let col = row.split("|");
+        let kode = col[0] || "-";
+        let nama = col[1] || "-";
+        let qty  = col[2] || "0";
+        let box  = col[3] || "0";
 
-        let g = grouped[kode];
-
-        // HEADER PRODUK
         html += `
-        <tr style="font-weight:bold; background:#f2f2f2;">
+        <tr>
             <td>${kode}</td>
-            <td>${g.nama}</td>
-            <td>${g.totalQty.toLocaleString("id-ID")}</td>
-            <td>${g.totalBox}</td>
+            <td>${nama}</td>
+            <td>${Number(qty).toLocaleString("id-ID")}</td>
+            <td>${box}</td>
         </tr>
         `;
-
-        // SUB DETAIL
-        g.detail.forEach(d => {
-            html += `
-            <tr>
-                <td></td>
-                <td style="padding-left:20px;">
-                    - ${d.nama} @${d.qty.toLocaleString("id-ID")} Kg
-                </td>
-                <td></td>
-                <td>${d.box}</td>
-            </tr>
-            `;
-        });
-
     });
 
     document.getElementById("tbody").innerHTML = html;
 
-    // TOTAL BAWAH (tetap pakai dari parameter)
-    document.getElementById("totalQty").innerText =
+    // Total Bawah
+    document.getElementById("totalQty").innerText = 
         Number(p.get("totalQty") || 0).toLocaleString("id-ID");
-
-    document.getElementById("totalBox").innerText =
+    document.getElementById("totalBox").innerText = 
         Number(p.get("totalBox") || 0).toLocaleString("id-ID");
 }
-setHeader();
-renderTable();
+
+renderData();
 </script>
 
 </body>
