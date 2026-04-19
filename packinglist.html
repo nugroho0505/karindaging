@@ -95,34 +95,41 @@
         <div><p>Penerima</p><br><br>__________</div>
     </div>
 </div>
-
 <script>
 const p = new URLSearchParams(window.location.search);
 
 function render() {
-    // Header Data
+    // Info Header
     document.getElementById("customer").innerText = p.get("customer") || "-";
-    document.getElementById("alamat").innerText   = p.get("alamat") || "-";
-    document.getElementById("tanggal").innerText  = p.get("tanggal") || "-";
-    document.getElementById("no").innerText       = p.get("no") || "-";
+    document.getElementById("alamat").innerText = p.get("alamat") || "-";
+    document.getElementById("tanggal").innerText = p.get("tanggal") || "-";
+    document.getElementById("no").innerText = p.get("no") || "-";
     document.getElementById("pengirim").innerText = p.get("pengirim") || "-";
-    document.getElementById("po").innerText       = p.get("po") || "-";
+    document.getElementById("po").innerText = p.get("po") || "-";
 
-    const detail = p.get("detail") || "";
-    const items = detail.split(",").filter(x => x.trim() !== "");
+    const detailRaw = p.get("detail") || "";
+    
+    // Pastikan data dipisah dengan benar, buang spasi kosong
+    const items = detailRaw.split(",").map(item => item.trim()).filter(item => item !== "");
     
     let sjHtml = "";
     let grouped = {};
 
-    // Proses Data
+    // Jika items kosong, tampilkan baris kosong agar tabel tidak rusak
+    if (items.length === 0) {
+        document.getElementById("tbody-sj").innerHTML = "<tr><td colspan='4' align='center'>Tidak ada data</td></tr>";
+        document.getElementById("tbody-pl").innerHTML = "<tr><td colspan='4' align='center'>Tidak ada data</td></tr>";
+        return;
+    }
+
     items.forEach(row => {
         let col = row.split("|");
         let kode = col[0] || "-";
         let nama = col[1] || "-";
-        let qty  = Number(col[2]) || 0;
-        let box  = Number(col[3]) || 0;
+        let qty  = parseFloat(col[2]) || 0; // Gunakan parseFloat untuk angka desimal
+        let box  = parseInt(col[3]) || 0;   // Gunakan parseInt untuk angka bulat
 
-        // Surat Jalan Biasa
+        // 1. Render Summary (Surat Jalan)
         sjHtml += `<tr>
             <td>${kode}</td>
             <td>${nama}</td>
@@ -130,10 +137,11 @@ function render() {
             <td>${box}</td>
         </tr>`;
 
-        // Logika Grouping Packing List
+        // 2. Logika Grouping Packing List
         if (!grouped[kode]) {
+            let namaBersih = nama.includes('@') ? nama.split('@')[0].trim() : nama;
             grouped[kode] = {
-                namaDasar: nama.split('@')[0].trim(),
+                namaDasar: namaBersih,
                 totalQty: 0,
                 totalBox: 0,
                 details: []
@@ -141,17 +149,18 @@ function render() {
         }
         grouped[kode].totalQty += qty;
         grouped[kode].totalBox += box;
-        grouped[kode].details.push({ nama, qty, box });
+        grouped[kode].details.push({ namaLengkap: nama, qty, box });
     });
 
+    // Masukkan hasil ke tabel Summary
     document.getElementById("tbody-sj").innerHTML = sjHtml;
 
-    // Render Packing List
+    // 3. Render Packing List
     let plHtml = "";
     Object.keys(grouped).forEach(kode => {
         let g = grouped[kode];
 
-        // Baris Header Group (Kode | Nama | Total Qty | Total Box)
+        // Header Group
         plHtml += `
         <tr class="group-header">
             <td>${kode}</td>
@@ -160,12 +169,12 @@ function render() {
             <td>${g.totalBox}</td>
         </tr>`;
 
-        // Baris Rincian di bawahnya
+        // Rincian
         g.details.forEach(item => {
             plHtml += `
             <tr class="detail-row">
                 <td></td>
-                <td class="indent">- ${item.nama}</td>
+                <td style="padding-left:20px;">- ${item.namaLengkap}</td>
                 <td>${item.qty.toLocaleString("id-ID")}</td>
                 <td>${item.box}</td>
             </tr>`;
